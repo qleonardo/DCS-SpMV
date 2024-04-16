@@ -172,7 +172,7 @@ int main(int argc, char ** argv)
 	DC_Hybrid_SymSpMV(m, nnzA, sssRowPtrA, sssColIdxA, sssValA, sssDValA, x, y, &DC_Hybrid_solve_time, &DC_Hybrid_gflops, &DC_Hybrid_bandwith, &DC_Hybrid_pre_time, 24, 4);
 	CheckCorrectness(m, y_ref, y);
 	printf("The preprocessing time = %4.2f ms, solving time =  %4.2f ms, throught = %4.2f gflops, bandwidth = %4.2f GB/s.\n", DC_Hybrid_pre_time, DC_Hybrid_solve_time, DC_Hybrid_gflops, DC_Hybrid_bandwith);
-
+	
 	double DC_solve_time, DC_gflops, DC_bandwith, DC_pre_time;
 	DC_SymSpMV(m, nnzA, sssRowPtrA, sssColIdxA, sssValA, sssDValA, x, y, &DC_solve_time, &DC_gflops, &DC_bandwith, &DC_pre_time, 24, 4);
 	CheckCorrectness(m, y_ref, y);
