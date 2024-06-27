@@ -14,7 +14,7 @@ void CSR_SpMV(int            m,
                  double         *bandwith_add,
                  double         *pre_time_add)
 {
-    printf("\n------------------------CSR_SpMV------------------------\n");
+    // printf("\n------------------------CSR_SpMV------------------------\n");
 
 
     /* preprocessing */

@@ -1,18 +1,19 @@
 #compilers
 CC=icpc
 
-#GLOBAL_PARAMETERS
-#VALUE_TYPE = double
-#NUM_RUN = 1000
+LIBS += -L . -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -L. -lDC 
 
-#ENVIRONMENT_PARAMETERS
+all: Profile ML
 
-LIBS += -L . -lmetis -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -L. -lTDTree -lmetis 
+Profile: Profile
+	$(CC) -I -std=c++11 -qopenmp -O3 profiling.cpp -Wl,-rpath . $(LIBS) -o profiling
 
-#backup
-#$(CC) -xCORE-AVX2 -opt-prefetch=3 -Wno-deprecated-writable-strings -fopenmp -O3 main.cpp -o spmv -D VALUE_TYPE=$(VALUE_TYPE) -D NUM_RUN=$(NUM_RUN)
-main:
-	$(CC) -I /public1/soft/python/3.9.6-para/new-3.9.6/include/python3.9/ -std=c++11 -qopenmp -O3 main.cpp -Wl,-rpath . $(LIBS) -o csr.exe
+ML: ML
+	$(CC) -I -std=c++11 -qopenmp -O3 test_ML.cpp -Wl,-rpath . $(LIBS) -o test_ML
 
-color:
-	$(CC) -xAVX -I /public1/soft/python/3.9.6-para/new-3.9.6/include/python3.9/ -std=c++11 -qopt-report=5 -qopenmp -O3 main.cpp -Wl,-rpath . $(LIBS) -o csr.exe -DCOLOR  
+clean:
+	rm -f profiling
+	rm -f test_ML
+	rm -f performance_result.csv
+	rm -f samples.csv
+	rm -f ml_result.csv

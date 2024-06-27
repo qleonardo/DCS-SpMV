@@ -14,7 +14,7 @@ void MKL_SpMV(int            m,
                  double         *bandwith_add,
                  double         *pre_time_add)
 {
-    printf("\n------------------------MKL_SpMV------------------------\n");
+    // printf("\n------------------------MKL_SpMV------------------------\n");
 
 
     /* preprocessing */

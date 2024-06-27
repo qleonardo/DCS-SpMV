@@ -14,7 +14,7 @@ void MKL_SymSpMV(int            m,
                  double         *bandwith_add,
                  double         *pre_time_add)
 {
-    printf("\n------------------------MKL_SymSpMV------------------------\n");
+    // printf("\n------------------------MKL_SymSpMV------------------------\n");
 
 
     /* preprocessing */
