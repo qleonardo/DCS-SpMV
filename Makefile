@@ -1,5 +1,5 @@
 #compilers
-CC=icpc
+CC=icpx
 
 LIBS += -L . -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -L. -lDC 
 
@@ -14,6 +14,7 @@ ML: ML
 clean:
 	rm -f profiling
 	rm -f test_ML
+	rm -f predict.txt
 	rm -f performance_result.csv
 	rm -f samples.csv
 	rm -f ml_result.csv

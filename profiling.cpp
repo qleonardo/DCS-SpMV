@@ -32,7 +32,7 @@ int main(int argc, char ** argv)
         matrix_name = argv[argi];
     }
 
-    srand(time(NULL));
+    // srand(time(NULL));
     read_mtx(filename, &m, &n, &nnzA, &csrRowPtrA, &csrColIdxA, &csrValA);
 
     ofstream performance_result;
@@ -47,7 +47,7 @@ int main(int argc, char ** argv)
     VALUE_TYPE *y = new VALUE_TYPE[m];
     VALUE_TYPE *y_ref = new VALUE_TYPE[m];
     for (int i = 0; i < m; i++) 
-        x[i] = (rand() % 200 - 100) / 100.0;
+        x[i] = (rand() % 100 - 100) / 100.0;
 
 
 
@@ -155,7 +155,7 @@ int main(int argc, char ** argv)
         {
             double DC_Hybrid_solve_time, DC_Hybrid_gflops, DC_Hybrid_bandwith, DC_Hybrid_pre_time;
             DC_Hybrid_SymSpMV(m, nnzA, sssRowPtrA, sssColIdxA, sssValA, sssDValA, x, y, nRowPerRow, Row2Row, &DC_Hybrid_solve_time, &DC_Hybrid_gflops, &DC_Hybrid_bandwith, &DC_Hybrid_pre_time, threads, Level);
-            CheckCorrectness(m, y_ref, y);
+            if (!CheckCorrectness(m, y_ref, y)) continue;
         
             if (DC_Hybrid_gflops > ansGflops + 0.2)
             {
@@ -182,5 +182,14 @@ int main(int argc, char ** argv)
     delete[] csrRowPtrA;
     delete[] csrColIdxA;
     delete[] csrValA;
+
+    delete[] x;
+    delete[] y;
+    delete[] y_ref;
+
+    for(int i = 0; i < m; i++)
+        delete Row2Row[i];
+    delete[] Row2Row;
+    delete[] nRowPerRow;
 }
 

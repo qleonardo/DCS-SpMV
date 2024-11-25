@@ -20,7 +20,6 @@ void CSR_SpMV(int            m,
     /* preprocessing */
     double t1 = omp_get_wtime();
 
-    // cout << "finishing 0" << endl << flush;
 
     int threads = omp_get_max_threads();
     int *row_start = new int[threads]();
@@ -30,17 +29,15 @@ void CSR_SpMV(int            m,
     {
         // cout << i << endl << flush;
         // cout << csrRowPtrA[i+1] << endl << flush;
-        if (csrRowPtrA[i+1]-csrRowPtrA[row_start[j]] > nnzA / threads)
+        if (csrRowPtrA[i+1]-csrRowPtrA[row_start[j]] > nnzA / (threads-j))
         {
             row_end[j] = row_start[j+1] = i+1;
-            // cout << row_start[j] << " " << row_end[j] << endl;
+            nnzA -= csrRowPtrA[i+1]-csrRowPtrA[row_start[j]];
             j++;
         }
-        // cout << i << endl << flush;
     }
     row_end[threads-1] = m;
 
-    // cout << "finishing 1" << endl << flush;
 
 
     double t2 = omp_get_wtime();
@@ -66,12 +63,12 @@ void CSR_SpMV(int            m,
             }
         }
 
+
         
         t2 = omp_get_wtime();
         time_solve += t2 - t1;
     }
 
-    // cout << "finishing 2" << endl << flush;
 
     double dataSize = (double)((m+1)*sizeof(int) + nnzA*sizeof(int) + nnzA*sizeof(VALUE_TYPE) + 2*m*sizeof(VALUE_TYPE));
 
@@ -80,8 +77,6 @@ void CSR_SpMV(int            m,
     *gflops_add = 2 * nnzA / (1e6 * time_solve);
     *bandwith_add = dataSize / (1e6 * time_solve);
 
-
-    // cout << "finishing 3" << endl << flush;
 
     delete[] row_start;
     delete[] row_end;

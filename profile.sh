@@ -5,12 +5,10 @@
 #SBATCH --mem=360G
 echo -e "matrix,CSR,MKL,MKLSYM,DCH" > performance_result.csv
 echo -e "matrix,rows,nnz,nnz_max,nnz_std,BW,BW_avg,conf,conf_den,conf_max,conf_min,conf_std,Level" > samples.csv
-cd matrix
-for matrix in * 
+for file in "./matrix"/* 
 do 
-    echo -n "profiling "$matrix"..."
-    cd ..
+    matrix=$(basename "$file")
+    echo "profiling $matrix..."
     numactl --cpunodebind=0 --membind=0 ./profiling ./matrix/$matrix/$matrix.mtx $matrix
-    echo -e "\t\tdone..."
-    cd matrix
+    echo -e "done...\n"
 done

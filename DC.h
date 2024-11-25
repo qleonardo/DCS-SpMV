@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #define Forward 0
 #define Backward 1
@@ -17,13 +18,10 @@ struct DCNode
 
 	~DCNode()
 	{
-		if ((*son) != NULL)
-		{
-			for(int i = 0; i < nbParts; i++)
-				if (son[i] != NULL)
-					delete son[i];
-			delete[] (*son);
-		}
+		if (son != NULL)
+			delete[] son;
+		if (iso != NULL)
+			delete iso;
 	}
 };
 
@@ -84,6 +82,14 @@ class DC
 
 			nbParts = nbparts;
 			Level = lv;
+		}
+
+		~DC()
+		{
+			delete[] RowPerm;
+			delete[] RowRev;
+			
+			delete treeRoot;
 		}
 	
 };

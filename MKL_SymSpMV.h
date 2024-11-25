@@ -73,4 +73,6 @@ void MKL_SymSpMV(int            m,
 
     delete[] row_start;
     delete[] row_end;
+
+    mkl_sparse_destroy(A);
 }

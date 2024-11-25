@@ -21,12 +21,10 @@ def create_model(num):
     return model
 
 
-def read_samples(filename, name_test):
-    Features_train = []
-    Level_train = []
-    Features_test = []
-    Level_test = []
-    checker = {}
+def read_samples(filename):
+    name = []
+    Features = []
+    Level = []
 
     total = sum(1 for line in open(filename))
     with open(filename) as csvfile:
@@ -34,25 +32,18 @@ def read_samples(filename, name_test):
         header = next(csv_reader)
         for i in range(1, total):
             sample = next(csv_reader)
-            name = sample[0]
-            features = [float(feature) for feature in sample[1:-1]]
-            level = min(4, int(sample[-1]))
-            if name in name_test:
-                if tuple(sample[1:-1]) not in checker:
-                    Level_test.append(level)
-                    checker[tuple(sample[1:-1])] = level
-                else:
-                    Level_test.append(checker[tuple(sample[1:-1])])
-                Features_test.append(features)
-            else:
-                if tuple(sample[1:-1]) not in checker:
-                    Level_train.append(level)
-                    checker[tuple(sample[1:-1])] = level
-                else:
-                    Level_train.append(checker[tuple(sample[1:-1])])
-                Features_train.append(features)
+            features = [float(i-1)] + [float(feature) for feature in sample[1:-1]]
+            level = [min(float(lev),4) for lev in sample[-1]]
+            if features not in Features:
+                Features.append(features)
+                Level.append(level)
+                name.append(sample[0])
 
-    return Features_train, Features_test, Level_train, Level_test
+    Features_train, Features_test, Level_train, Level_test = train_test_split(Features, Level, test_size=0.2, random_state=np.random.randint(0, 100))
+    Features_train = [arr[1:] for arr in Features_train]
+    name_test = [name[int(i)] for i in [arr[0] for arr in Features_test]]
+    Features_test = [arr[1:] for arr in Features_test]
+    return Features_train, Features_test, Level_train, Level_test, name_test
 
 
 def standardize(Features_train, Features_test, Level_train, Level_test):
@@ -76,20 +67,16 @@ def read_test(filename):
 
 
 model = create_model(5)
-name_test = read_test('test_set.txt')
-Features_train, Features_test, Level_train, Level_test = read_samples('samples.csv', name_test)
+Features_train, Features_test, Level_train, Level_test, name_test = read_samples('samples.csv')
 Features_train, Features_test, Level_train, Level_test = standardize(Features_train, Features_test, Level_train, Level_test)
 
-
-model.fit(Features_train, Level_train, epochs=1000, verbose=1, batch_size=8, validation_data=(Features_test, Level_test))
-score, accuracy = model.evaluate(Features_test, Level_test, verbose=0)
-print(accuracy)
+model.fit(Features_train, Level_train, epochs=1000, verbose=1, batch_size=8)
+model.evaluate(Features_test, Level_test, verbose=0)
 Level_predict = model.predict(Features_test, verbose=0)
 predict = np.argmax(Level_predict, axis=1)
 truth = np.argmax(Level_test, axis=1)
-print(predict)
-print(truth)
 
+#If the parameters predicted by the model can achieve 90% of the optimal SpMV performance, we consider the prediction to be correct.
 with open("predict.txt", "w") as file:
     for i in range(len(name_test)):
         file.write(str(name_test[i]) + " " + str(predict[i]) + " " + str(truth[i]) + "\n")

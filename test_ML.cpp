@@ -53,6 +53,8 @@ int main(int argc, char ** argv)
 
 
 
+    double DC_Hybrid_truth_solve_time, DC_Hybrid_truth_gflops, DC_Hybrid_truth_bandwith, DC_Hybrid_truth_pre_time;
+    double DC_Hybrid_predict_solve_time, DC_Hybrid_predict_gflops, DC_Hybrid_predict_bandwith, DC_Hybrid_predict_pre_time;
 
     int maxBandwith = 0;
     double bandwith_average = 0;
@@ -105,11 +107,15 @@ int main(int argc, char ** argv)
     if (conflicts >= 2e9)
     {
         /* too many conflicts, we use naive SpMV directly */
+        DC_Hybrid_truth_gflops = CSR_gflops;
         if (predict != 0)
         {
             printf("predict error!!!\n");
             ml_result << "error" << "," << CSR_gflops << endl;
+            return 0;
         }
+        else
+            DC_Hybrid_predict_gflops = CSR_gflops;
     }
     else
     {
@@ -129,23 +135,24 @@ int main(int argc, char ** argv)
         conflict_Std = sqrt(conflict_Std);
 
         
-        double DC_Hybrid_predict_solve_time, DC_Hybrid_predict_gflops, DC_Hybrid_predict_bandwith, DC_Hybrid_predict_pre_time;
         if (predict != 0)
             DC_Hybrid_SymSpMV(m, nnzA, sssRowPtrA, sssColIdxA, sssValA, sssDValA, x, y, nRowPerRow, Row2Row, &DC_Hybrid_predict_solve_time, &DC_Hybrid_predict_gflops, &DC_Hybrid_predict_bandwith, &DC_Hybrid_predict_pre_time, threads, predict);
         else
             DC_Hybrid_predict_gflops = CSR_gflops;
 
-        double DC_Hybrid_truth_solve_time, DC_Hybrid_truth_gflops, DC_Hybrid_truth_bandwith, DC_Hybrid_truth_pre_time;
         if (truth != 0)
             DC_Hybrid_SymSpMV(m, nnzA, sssRowPtrA, sssColIdxA, sssValA, sssDValA, x, y, nRowPerRow, Row2Row, &DC_Hybrid_truth_solve_time, &DC_Hybrid_truth_gflops, &DC_Hybrid_truth_bandwith, &DC_Hybrid_truth_pre_time, threads, truth);
         else
          DC_Hybrid_truth_gflops = CSR_gflops;
         
             
-        ml_result << DC_Hybrid_predict_gflops << "," << DC_Hybrid_truth_gflops << endl;
     }
-    
 
+    ml_result << DC_Hybrid_predict_gflops << "," << DC_Hybrid_truth_gflops << ",";
+    if (DC_Hybrid_predict_gflops >= 0.90*DC_Hybrid_truth_gflops)
+        ml_result << "Accepted!" << endl;
+    else
+        ml_result << "Failed!" << endl;
 
 
     ml_result.close();

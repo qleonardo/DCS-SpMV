@@ -24,24 +24,30 @@ using namespace std;
 #ifndef CHECK_CORRECTNESS
 #define CHECK_CORRECTNESS
 
-void CheckCorrectness(int m, VALUE_TYPE *y_ref, VALUE_TYPE *y)
+bool CheckCorrectness(int m, VALUE_TYPE *y_ref, VALUE_TYPE *y)
 {/**************************************CheckCorrectness******************************************/
     
     int error_count = 0;
     for (int i = 0; i < m; i++)
-        if (abs(y_ref[i] - y[i]) > 0.01 && abs(y_ref[i] - y[i]) > 0.01 * y_ref[i])
+        //both relative error and absolute error should be considered.
+        if (fabs(y_ref[i] - y[i]) > 1e-5 * max(fabs(y_ref[i]), fabs(y[i])) && fabs(y_ref[i] - y[i]) > 1e-5)
         {
             error_count++;
-//             cout << "ROW [ " << i << " ], NNZ SPAN: "
-//                     << "\t ref = " << y[i]
-//                     << ", \t std = " << y_ref[i]
-// //                 << ", \t error = " << y_ref[i] - y[i]
-//                     << endl;
-//            break;
+            // cout << "ROW [ " << i << " ], NNZ SPAN: "
+            //         << "\t ref = " << y[i]
+            //         << ", \t std = " << y_ref[i]
+            //     << ", \t error = " << fabs(y_ref[i] - y[i])
+            //         << endl << flush;
+        //    break;
         }
 
-    if (error_count != 0)
-        cout << "Check... NO PASS! #Error = " << error_count << " out of " << m << " entries.\n" << endl;
+    if (error_count == 0)
+    {
+        cout << "Check... PASS! \n" << flush;
+        return 1;
+    }
+    else
+        return 0;
 }
 
 #endif
@@ -109,7 +115,7 @@ long long create_Conflict_Graph(int* sssRowPtrA, int* sssColIdxA, int *nRowPerRo
     for(int i = 0; i < threads; i++)
     {
         vis[i] = new int[m];
-        output[i] = new vector<int>[m];
+        output[i] = new vector<int>[m]();
         for(int j = 0; j < m; j++)
             vis[i][j] = -1;
     }
@@ -190,7 +196,7 @@ long long create_Conflict_Graph(int* sssRowPtrA, int* sssColIdxA, int *nRowPerRo
     for(int i = 0; i < m; i++)
         conflicts += nRowPerRow[i];
     // cout << "create conflict graph 4" << endl << flush;
-#pragma omp parallel for
+
     for(int i = 0; i < threads; i++)
     {
         for(int j = 0; j < m; j++)
@@ -215,9 +221,9 @@ long long create_Conflict_Graph(int* sssRowPtrA, int* sssColIdxA, int *nRowPerRo
 #define CREATE_TREE
 int CreateTree(DC *DCRoot, int **Row2Row, int *nRowPerRow, int *sssRowPtrA, int m)
 {
-    int *nRowPerRow_backup = (int *)malloc(m * sizeof(int));
-    int **Row2Row_backup = (int **)malloc(m * sizeof(int*));
-    int *RowValue = (int *)malloc(m * sizeof(int));
+    int *nRowPerRow_backup = new int[m];
+    int **Row2Row_backup = new int*[m];
+    int *RowValue = new int[m];
 
 #pragma omp parallel for
     for(int i = 0; i < m; i++)

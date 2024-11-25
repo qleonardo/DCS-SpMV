@@ -68,4 +68,6 @@ void MKL_SpMV(int            m,
 
     delete[] row_start;
     delete[] row_end;
+    
+    mkl_sparse_destroy(A);
 }
