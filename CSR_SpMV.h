@@ -21,7 +21,7 @@ void CSR_SpMV(int            m,
     double t1 = omp_get_wtime();
 
 
-    int threads = omp_get_max_threads();
+    int threads = omp_get_max_threads(), nnz = nnzA;
     int *row_start = new int[threads]();
     int *row_end = new int[threads]();
     row_start[0] = 0;
@@ -29,10 +29,10 @@ void CSR_SpMV(int            m,
     {
         // cout << i << endl << flush;
         // cout << csrRowPtrA[i+1] << endl << flush;
-        if (csrRowPtrA[i+1]-csrRowPtrA[row_start[j]] > nnzA / (threads-j))
+        if (csrRowPtrA[i+1]-csrRowPtrA[row_start[j]] > nnz / (threads-j))
         {
             row_end[j] = row_start[j+1] = i+1;
-            nnzA -= csrRowPtrA[i+1]-csrRowPtrA[row_start[j]];
+            nnz -= csrRowPtrA[i+1]-csrRowPtrA[row_start[j]];
             j++;
         }
     }
